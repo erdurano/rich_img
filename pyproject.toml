@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "rich-img-widget"
+version = "0.1.0"
+description = ""
+authors = ["erdurano <erdurano@gmail.com>"]
+readme = "README.md"
+packages = [{include = "rich_img_widget"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+rich = "^12.6.0"
+pillow = "^9.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+mypy = "^0.982"
+black = "^22.10.0"
+isort = "^5.10.1"
+flake8 = "^5.0.4"
+autopep8 = "^2.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
