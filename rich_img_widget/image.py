@@ -37,13 +37,13 @@ def get_hi_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
     return hi_flags
 
 
-def diff_from_charflag(
+def diff_from_charflags(
         hi_flags: int,
-        char_flaggs: int) -> int:
+        char_flags: int) -> int:
     '''
     Finds how many pixels' high values are different than given char_flag integer.
     with an XOR operation difference in bit flags obtained and count
     returned with int.bit_count()
     '''
-    masked = hi_flags ^ char_flaggs
+    masked = hi_flags ^ char_flags
     return masked.bit_count()

@@ -30,7 +30,7 @@ class TestHiLoMap:
         assert get_hi_flags(test_cells) == expected_flag
 
 
-@pytest.mark.parametrize("high_flags, masks, expected_diff", [
+@pytest.mark.parametrize("high_flags, charflags, expected_diff", [
     (0b00110100001001101001100100010110, 0b10010100001001101011100000010110, 4),
     (0b11011111110000011011101001001100, 0b11001111110100010011101000000101, 6),
     (0b10100011001001011111110110100110, 0b10100011001001011111110110100110, 0),
@@ -43,6 +43,6 @@ class TestHiLoMap:
     (0b01111011000011101001000110110001, 0b01111011000011101001000110110001, 0),
 ]
 )
-def test_diff_from_mask(high_flags, masks, expected_diff):
+def test_diff_from_mask(high_flags, charflags, expected_diff):
 
-    assert diff_from_charflag(high_flags, masks) == expected_diff
+    assert diff_from_charflags(high_flags, masks) == expected_diff
