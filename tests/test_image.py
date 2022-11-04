@@ -1,7 +1,7 @@
 from random import random
 import pytest
 
-from rich_img_widget.image import (diff_from_charflag, get_cell_avg,
+from rich_img_widget.image import (diff_from_charflags, get_cell_avg,
                                    get_hi_flags)
 
 
@@ -45,4 +45,4 @@ class TestHiLoMap:
 )
 def test_diff_from_mask(high_flags, charflags, expected_diff):
 
-    assert diff_from_charflags(high_flags, masks) == expected_diff
+    assert diff_from_charflags(high_flags, charflags) == expected_diff
