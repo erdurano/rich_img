@@ -99,5 +99,21 @@ def get_block_char(hi_flags: int) -> Tuple[int, bool]:
     return code, inverted
 
 
-# def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
-#     pass
+def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
+    hi_flags = get_hi_flags(pixels)
+    hi_cells = []
+    lo_cells = []
+    mask = 1 << 31
+    for pixel in pixels:
+        if hi_flags & mask:
+            hi_cells.append(pixel)
+        else:
+            lo_cells.append(pixel)
+        mask >>= 1
+    fg_color = get_color_avg(hi_cells)
+    bg_color = get_color_avg(lo_cells)
+    charcode, invert = get_block_char(hi_flags)
+    if invert:
+        fg_color, bg_color = bg_color, fg_color
+
+    return RasterCell(fg_color, bg_color, chr(charcode))

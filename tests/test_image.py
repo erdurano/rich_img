@@ -1,8 +1,9 @@
 from random import random
+from typing import Iterator, Tuple
 import pytest
 
 from rich_img_widget.image import (diff_from_charflags, get_color_avg,
-                                   get_hi_flags, get_block_char)
+                                   get_hi_flags, get_block_char, get_cell)
 
 
 def test_avg():
@@ -53,3 +54,32 @@ def test_diff_from_mask(high_flags, charflags, expected_diff):
 )
 def test_get_char(hi_flags, expected_charcode, expected_inverted):
     assert (expected_charcode, expected_inverted) == get_block_char(hi_flags)
+
+
+class TestGetCell:
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+
+    @classmethod
+    def black_triangle(cls) -> Tuple[Tuple[int, int, int], ...]:
+        return tuple(
+            cls.black if flag == 1 else cls.white
+            for flag in TestGetCell.int_from_charmap(0x000137f0)
+        )
+
+    @classmethod
+    def int_from_charmap(cls, charflags: int) -> Iterator[int]:
+        mask = 1 << 31
+        while mask:
+            if charflags & mask:
+                yield 1
+            else:
+                yield 0
+            mask >>= 1
+
+    def test_sanity(self):
+        pixels = self.black_triangle()
+        cell = get_cell(pixels)
+        assert cell.fg_color == self.black
+        assert cell.bg_color == self.white
+        assert cell.char == '◢'
