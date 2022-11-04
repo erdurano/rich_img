@@ -1,8 +1,8 @@
 from random import random
 import pytest
 
-from rich_img_widget.image import (diff_from_charflags, get_cell_avg,
-                                   get_hi_flags)
+from rich_img_widget.image import (diff_from_charflags, get_color_avg,
+                                   get_hi_flags, get_block_char)
 
 
 def test_avg():
@@ -15,7 +15,7 @@ def test_avg():
 
     cells = [(reds[i], greens[i], blues[i]) for i in range(32)]
 
-    assert get_cell_avg(cells) == expected
+    assert get_color_avg(cells) == expected
 
 
 class TestHiLoMap:
@@ -33,16 +33,23 @@ class TestHiLoMap:
 @pytest.mark.parametrize("high_flags, charflags, expected_diff", [
     (0b00110100001001101001100100010110, 0b10010100001001101011100000010110, 4),
     (0b11011111110000011011101001001100, 0b11001111110100010011101000000101, 6),
-    (0b10100011001001011111110110100110, 0b10100011001001011111110110100110, 0),
+    (0b10100011001001011111110110100110, 0b10100011001001011111110110100111, 1),
     (0b10010111100100001100001111011110, 0b10010111100100001100001111011110, 0),
-    (0b11001111100111101100001110111100, 0b11001111100111101100001110111100, 0),
-    (0b00011100101110100001001111011001, 0b00011100101110100001001111011001, 0),
-    (0b00101111101101010111100000110010, 0b00101111101101010111100000110010, 0),
-    (0b11010110010101111010000000101100, 0b11010110010101111010000000101100, 0),
-    (0b10100010101101001100011111001100, 0b10100010101101001100011111001100, 0),
-    (0b01111011000011101001000110110001, 0b01111011000011101001000110110001, 0),
+    (0b00011100101110100001001111011001, 0b00011110001100100001001111011001, 3),
+    (0b00000000000000000000000000000000, 0b11111111111111111111111111111111, 32)
 ]
 )
 def test_diff_from_mask(high_flags, charflags, expected_diff):
 
     assert diff_from_charflags(high_flags, charflags) == expected_diff
+
+
+@pytest.mark.parametrize("hi_flags, expected_charcode, expected_inverted", [
+    (0b11111111111111111111111111111111, 0x00a0, True),
+    (0b00000000000000000000000000000000, 0x00a0, False),
+    (0b00000000000000001100110011001100, 0x2596, False),
+    (0b11111111111111110011001100110011, 0x2596, True)
+]
+)
+def test_get_char(hi_flags, expected_charcode, expected_inverted):
+    assert (expected_charcode, expected_inverted) == get_block_char(hi_flags)

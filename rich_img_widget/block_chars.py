@@ -18,7 +18,7 @@ BLOCKCHARS = {
     0x000fffff: 0x2585,
     0x00ffffff: 0x2586,  # lower 3/4
     0x0fffffff: 0x2587,
-    # 0xffffffff, 0x2588,  # full, redundant with inverse space
+    # 0xffffffff: 0x2588,  # full block
     0xeeeeeeee: 0x258a,  # left 3/4
     0xcccccccc: 0x258c,  # left 1/2
     0x88888888: 0x258e,  # left 1/4

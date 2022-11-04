@@ -1,7 +1,17 @@
 from typing import Sequence, Tuple
+from typing import NamedTuple
+from .block_chars import BLOCKCHARS
 
 
-def get_cell_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int]:
+class RasterCell(NamedTuple):
+    '''Represents equivalent cell to a 4 by 8 pixels region as foreground color, background color and character'''
+    fg_color: Tuple[int, int, int]
+    bg_color: Tuple[int, int, int]
+    char: str
+
+
+def get_color_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int]:
+    """Returns average color of a grup of pixels represented by rgb 3tuple"""
     size = len(pixels)
     red_total, green_total, blue_total = 0, 0, 0
     for red, green, blue in pixels:
@@ -9,7 +19,7 @@ def get_cell_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int]
         green_total += green
         blue_total += blue
 
-    return (int(red_total / size), int(green_total / size), int(blue_total / size))
+    return (red_total // size, green_total // size, blue_total // size)
 
 
 def get_hi_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
@@ -25,7 +35,7 @@ def get_hi_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
         """
         return sum((component**2 for component in pixel))
 
-    avg_vec_sqr = get_pixel_vec_square(get_cell_avg(pixels))
+    avg_vec_sqr = get_pixel_vec_square(get_color_avg(pixels))
 
     hi_flags = 0
 
@@ -47,3 +57,41 @@ def diff_from_charflags(
     '''
     masked = hi_flags ^ char_flags
     return masked.bit_count()
+
+
+def get_block_char(hi_flags: int) -> Tuple[int, bool]:
+    """returns block char with closest charflag to the hi_flags of the cell and whether its inverted or not"""
+
+    min_diff = 0xffffffff  # initially set to max value
+    inverted = False       # sensible default
+
+    code = 0x00a0  # space
+
+    for char_flags, char_code in BLOCKCHARS.items():
+        diff = diff_from_charflags(hi_flags, char_flags)
+
+        if diff == 0:  # checks for exact match
+
+            code = char_code
+            break
+
+        elif diff == 32:  # checks for inverted match
+
+            code, inverted = char_code, True
+            break
+
+        elif diff <= min_diff:  # closest char
+
+            min_diff = diff
+            code = char_code
+
+        elif (d := 32-diff) <= min_diff:  # closest inverse char
+            min_diff = d
+            code = char_code
+            inverted = True
+
+    return code, inverted
+
+
+# def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
+#     pass
