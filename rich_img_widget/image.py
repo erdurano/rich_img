@@ -4,7 +4,10 @@ from .block_chars import BLOCKCHARS
 
 
 class RasterCell(NamedTuple):
-    '''Represents equivalent cell to a 4 by 8 pixels region as foreground color, background color and character'''
+    '''
+    Represents equivalent cell to a 4 by 8 pixels region as foreground color,
+    background color and character
+    '''
     fg_color: Tuple[int, int, int]
     bg_color: Tuple[int, int, int]
     char: str
@@ -60,7 +63,10 @@ def diff_from_charflags(
 
 
 def get_block_char(hi_flags: int) -> Tuple[int, bool]:
-    """returns block char with closest charflag to the hi_flags of the cell and whether its inverted or not"""
+    """
+    returns block char with closest charflag to the hi_flags of the cell and
+    whether it is inverted or not
+    """
 
     min_diff = 0xffffffff  # initially set to max value
     inverted = False       # sensible default
