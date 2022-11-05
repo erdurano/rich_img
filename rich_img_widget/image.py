@@ -15,6 +15,8 @@ class RasterCell(NamedTuple):
 
 def get_color_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int]:
     """Returns average color of a grup of pixels represented by rgb 3tuple"""
+    if not pixels:
+        return (0, 0, 0)
     size = len(pixels)
     red_total, green_total, blue_total = 0, 0, 0
     for red, green, blue in pixels:

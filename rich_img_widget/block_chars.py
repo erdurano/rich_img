@@ -75,14 +75,14 @@ BLOCKCHARS = {
 
     # Geometrical shapes. Tricky because some of them are too wide.
 
-    0x00ffff00: 0x25fe,  # Black medium small square
-    0x00066000: 0x25aa,  # Black small square
+    # 0x00ffff00: 0x25fe,  # Black medium small square
+    # 0x00066000: 0x25aa,  # Black small square
 
-    0x11224488: 0x2571,  # diagonals
-    0x88442211: 0x2572,
-    0x99666699: 0x2573,
-    0x000137f0: 0x25e2,  # Triangles
-    0x0008cef0: 0x25e3,
-    0x000fec80: 0x25e4,
-    0x000f7310: 0x25e5,
+    # 0x11224488: 0x2571,  # diagonals
+    # 0x88442211: 0x2572,
+    # 0x99666699: 0x2573,
+    # 0x000137f0: 0x25e2,  # Triangles
+    # 0x0008cef0: 0x25e3,
+    # 0x000fec80: 0x25e4,
+    # 0x000f7310: 0x25e5,
 }
