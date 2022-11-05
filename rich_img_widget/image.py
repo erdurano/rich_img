@@ -52,6 +52,26 @@ def get_hi_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
     return hi_flags
 
 
+def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
+
+    channels = tuple(zip(*pixels))
+    split_r = max(channels[0]) - min(channels[0])
+    split_g = max(channels[1]) - min(channels[1])
+    split_b = max(channels[2]) - min(channels[2])
+    split_channels = (split_r, split_b, split_g)
+    max_split = max(split_channels)
+    split_index = split_channels.index(max_split)
+    split_value = min(channels[split_index]) + max_split/2
+
+    split_flags = 0
+    for pix in pixels:
+        split_flags <<= 1
+        if pix[split_index] >= split_value:
+            split_flags |= 1
+
+    return split_flags
+
+
 def diff_from_charflags(
         hi_flags: int,
         char_flags: int) -> int:
@@ -106,21 +126,25 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
 
 
 def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
-    hi_flags = get_hi_flags(pixels)
+    hi_flags = get_split_flags(pixels)
     char_flags, charcode, invert = get_block_char(hi_flags)
 
     hi_cells = []
     lo_cells = []
+    fg_cells = []
+    bg_cells = []
     mask = 1 << 31
     for pixel in pixels:
-        if hi_flags & mask:
+        if char_flags & mask:
             hi_cells.append(pixel)
+            fg_cells.append(pixel)
         else:
             lo_cells.append(pixel)
+            bg_cells.append(pixel)
         mask >>= 1
-    fg_color = get_color_avg(hi_cells)
-    bg_color = get_color_avg(lo_cells)
-    if invert:
-        fg_color, bg_color = bg_color, fg_color
+    fg_color = get_color_avg(fg_cells)
+    bg_color = get_color_avg(bg_cells)
+    # if invert:
+    #     fg_color, bg_color = bg_color, fg_color
 
     return RasterCell(fg_color, bg_color, chr(charcode))

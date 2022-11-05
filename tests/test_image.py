@@ -3,7 +3,8 @@ from typing import Iterator, Tuple
 import pytest
 
 from rich_img_widget.image import (diff_from_charflags, get_color_avg,
-                                   get_hi_flags, get_block_char, get_cell)
+                                   get_hi_flags, get_block_char, get_cell,
+                                   get_split_flags)
 
 
 def test_avg():
@@ -23,12 +24,13 @@ class TestHiLoMap:
 
     def test_sanity(self):
 
-        test_cells = [(255, 255, 255) if i % 4 == 0 else (0, 0, 0)
-                      for i in range(32)]
+        test_pixels = [(255, 255, 255) if i % 4 == 0 else (0, 0, 0)
+                       for i in range(32)]
 
         expected_flag = 0b10001000100010001000100010001000
 
-        assert get_hi_flags(test_cells) == expected_flag
+        assert get_hi_flags(test_pixels) == expected_flag
+        assert get_split_flags(test_pixels) == expected_flag
 
 
 @pytest.mark.parametrize("high_flags, charflags, expected_diff", [
