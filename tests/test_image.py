@@ -45,15 +45,18 @@ def test_diff_from_mask(high_flags, charflags, expected_diff):
     assert diff_from_charflags(high_flags, charflags) == expected_diff
 
 
-@pytest.mark.parametrize("hi_flags, expected_charcode, expected_inverted", [
-    (0b11111111111111111111111111111111, 0x00a0, True),
-    (0b00000000000000000000000000000000, 0x00a0, False),
-    (0b00000000000000001100110011001100, 0x2596, False),
-    (0b11111111111111110011001100110011, 0x2596, True)
-]
+@pytest.mark.parametrize(
+    "hi_flags, expected_flags, expected_charcode, expected_inverted",
+    [
+        (0b00000000000000000000000000000000, 0x00000000, 0x00a0, False),
+        (0b11111111111111111111111111111111, 0x00000000, 0x00a0, True),
+        (0b11111111111111110011001100110011, 0x0000cccc, 0x2596, True),
+        (0b00000000000000001100110011001100, 0x0000cccc, 0x2596, False),
+    ]
 )
-def test_get_char(hi_flags, expected_charcode, expected_inverted):
-    assert (expected_charcode, expected_inverted) == get_block_char(hi_flags)
+def test_get_char(hi_flags, expected_flags, expected_charcode, expected_inverted):
+    assert (expected_flags, expected_charcode,
+            expected_inverted) == get_block_char(hi_flags)
 
 
 class TestGetCell:

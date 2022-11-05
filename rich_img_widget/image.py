@@ -64,7 +64,7 @@ def diff_from_charflags(
     return masked.bit_count()
 
 
-def get_block_char(hi_flags: int) -> Tuple[int, bool]:
+def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
     """
     returns block char with closest charflag to the hi_flags of the cell and
     whether it is inverted or not
@@ -74,6 +74,7 @@ def get_block_char(hi_flags: int) -> Tuple[int, bool]:
     inverted = False       # sensible default
 
     code = 0x00a0  # space
+    flags = 0x00000000
 
     for char_flags, char_code in BLOCKCHARS.items():
         diff = diff_from_charflags(hi_flags, char_flags)
@@ -81,28 +82,33 @@ def get_block_char(hi_flags: int) -> Tuple[int, bool]:
         if diff == 0:  # checks for exact match
 
             code = char_code
+            flags = char_flags
             break
 
         elif diff == 32:  # checks for inverted match
 
-            code, inverted = char_code, True
+            flags, code, inverted = char_flags, char_code, True
             break
 
         elif diff <= min_diff:  # closest char
 
             min_diff = diff
             code = char_code
+            flags = char_flags
 
         elif (d := 32-diff) <= min_diff:  # closest inverse char
             min_diff = d
             code = char_code
+            flags = char_flags
             inverted = True
 
-    return code, inverted
+    return flags, code, inverted
 
 
 def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
     hi_flags = get_hi_flags(pixels)
+    char_flags, charcode, invert = get_block_char(hi_flags)
+
     hi_cells = []
     lo_cells = []
     mask = 1 << 31
@@ -114,7 +120,6 @@ def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
         mask >>= 1
     fg_color = get_color_avg(hi_cells)
     bg_color = get_color_avg(lo_cells)
-    charcode, invert = get_block_char(hi_flags)
     if invert:
         fg_color, bg_color = bg_color, fg_color
 
