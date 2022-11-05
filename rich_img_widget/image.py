@@ -1,6 +1,7 @@
 from typing import Sequence, Tuple
 from typing import NamedTuple
 from .block_chars import BLOCKCHARS
+from collections import Counter
 
 
 class RasterCell(NamedTuple):
@@ -54,22 +55,44 @@ def get_hi_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
 
 def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
 
-    channels = tuple(zip(*pixels))
-    split_r = max(channels[0]) - min(channels[0])
-    split_g = max(channels[1]) - min(channels[1])
-    split_b = max(channels[2]) - min(channels[2])
-    split_channels = (split_r, split_b, split_g)
-    max_split = max(split_channels)
-    split_index = split_channels.index(max_split)
-    split_value = min(channels[split_index]) + max_split/2
+    counter = Counter(pixels).most_common()
 
-    split_flags = 0
-    for pix in pixels:
-        split_flags <<= 1
-        if pix[split_index] >= split_value:
-            split_flags |= 1
+    if len(counter) == 1:
+        return 0xffffffff
+    if (len(counter) > 2) & (sum(count[1] for count in counter[:2]) > 16):
 
-    return split_flags
+        color1 = counter[0]
+        color2 = counter[1]
+        flags = 0
+        for pixel in pixels:
+            flags <<= 1
+            diff1 = 0
+            diff2 = 0
+            for index, channel in enumerate(pixel):
+                diff1 += (color1[0][index] - channel) ** 2
+                diff2 += (color2[0][index] - channel) ** 2
+            if diff1 > diff2:
+                flags |= 1
+        return flags
+
+    else:
+
+        channels = tuple(zip(*pixels))
+        split_r = max(channels[0]) - min(channels[0])
+        split_g = max(channels[1]) - min(channels[1])
+        split_b = max(channels[2]) - min(channels[2])
+        split_channels = (split_r, split_b, split_g)
+        max_split = max(split_channels)
+        split_index = split_channels.index(max_split)
+        split_value = min(channels[split_index]) + max_split/2
+
+        split_flags = 0
+        for pix in pixels:
+            split_flags <<= 1
+            if pix[split_index] > split_value:
+                split_flags |= 1
+
+        return split_flags
 
 
 def diff_from_charflags(
