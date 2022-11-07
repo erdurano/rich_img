@@ -58,44 +58,22 @@ def get_hi_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
 
 def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
 
-    counter = Counter(pixels).most_common()
+    channels = tuple(zip(*pixels))
+    split_r = max(channels[0]) - min(channels[0])
+    split_g = max(channels[1]) - min(channels[1])
+    split_b = max(channels[2]) - min(channels[2])
+    split_channels = (split_r, split_b, split_g)
+    max_split = max(split_channels)
+    split_index = split_channels.index(max_split)
+    split_value = min(channels[split_index]) + max_split/2
 
-    if len(counter) == 1:
-        return 0xffffffff
-    if (len(counter) > 2) & (sum(count[1] for count in counter[:2]) > 16):
+    split_flags = 0
+    for pix in pixels:
+        split_flags <<= 1
+        if pix[split_index] > split_value:
+            split_flags |= 1
 
-        color1 = counter[0]
-        color2 = counter[1]
-        flags = 0
-        for pixel in pixels:
-            flags <<= 1
-            diff1 = 0
-            diff2 = 0
-            for index, channel in enumerate(pixel):
-                diff1 += (color1[0][index] - channel) ** 2
-                diff2 += (color2[0][index] - channel) ** 2
-            if diff1 > diff2:
-                flags |= 1
-        return flags
-
-    else:
-
-        channels = tuple(zip(*pixels))
-        split_r = max(channels[0]) - min(channels[0])
-        split_g = max(channels[1]) - min(channels[1])
-        split_b = max(channels[2]) - min(channels[2])
-        split_channels = (split_r, split_b, split_g)
-        max_split = max(split_channels)
-        split_index = split_channels.index(max_split)
-        split_value = min(channels[split_index]) + max_split/2
-
-        split_flags = 0
-        for pix in pixels:
-            split_flags <<= 1
-            if pix[split_index] > split_value:
-                split_flags |= 1
-
-        return split_flags
+    return split_flags
 
 
 def diff_from_charflags(
@@ -151,6 +129,23 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
     return flags, code, inverted
 
 
+def get_direct_flags(pixels: Sequence[Pixel], color_counts: list[Tuple[Pixel, int]]) -> int:
+    flags = 0
+    denser_color = color_counts[0][0]
+    sparser_color = color_counts[1][0]
+    for pixel in pixels:
+        flags <<= 1
+        d1 = 0
+        d2 = 0
+        for index, channel in enumerate(pixel):
+            d1 += (denser_color[index] - channel) ** 2
+            d2 += (sparser_color[index] - channel) ** 2
+        if d1 > d2:
+            flags |= 1
+
+    return flags
+
+
 def get_cell_from_pattern(pixels: Sequence[Pixel],
                           codepoint: int = 0x2584,
                           pattern: int = 0x0000ffff) -> RasterCell:
@@ -159,7 +154,8 @@ def get_cell_from_pattern(pixels: Sequence[Pixel],
     code point with a specified pattern. Defaults to half block.
     """
 
-    mask = 0x80000000
+    mask = 1 << 31
+
     fg_pixels = []
     bg_pixels = []
     for pixel in pixels:
@@ -175,13 +171,14 @@ def get_cell_from_pattern(pixels: Sequence[Pixel],
 
 
 def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
-    hi_flags = get_split_flags(pixels)
-    char_flags, charcode, invert = get_block_char(hi_flags)
 
-    hi_cells = []
-    lo_cells = []
-    fg_cells = []
-    bg_cells = []
+    most_2_color_counts = Counter(pixels).most_common(2)
+    most2sum = sum(count[1] for count in most_2_color_counts)
+    if most2sum > len(pixels) / 2:
+        flags = get_direct_flags(pixels, most_2_color_counts)
+    else:
+        flags = get_split_flags(pixels)
+
     mask = 1 << 31
     for pixel in pixels:
         if hi_flags & mask:
