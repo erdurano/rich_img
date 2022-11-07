@@ -4,6 +4,9 @@ from .block_chars import BLOCKCHARS
 from collections import Counter
 
 
+Pixel = Tuple[int, int, int]
+
+
 class RasterCell(NamedTuple):
     '''
     Represents equivalent cell to a 4 by 8 pixels region as foreground color,
@@ -146,6 +149,29 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
             inverted = True
 
     return flags, code, inverted
+
+
+def get_cell_from_pattern(pixels: Sequence[Pixel],
+                          codepoint: int = 0x2584,
+                          pattern: int = 0x0000ffff) -> RasterCell:
+    """
+    Returns a raster cell from flattend pixel sequence with a
+    code point with a specified pattern. Defaults to half block.
+    """
+
+    mask = 0x80000000
+    fg_pixels = []
+    bg_pixels = []
+    for pixel in pixels:
+        if mask & pattern:
+            fg_pixels.append(pixel)
+        else:
+            bg_pixels.append(pixel)
+        mask >>= 1
+    fg_color = get_color_avg(fg_pixels)
+    bg_color = get_color_avg(bg_pixels)
+
+    return RasterCell(fg_color, bg_color, chr(codepoint))
 
 
 def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:

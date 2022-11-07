@@ -1,36 +1,28 @@
-import re
 from random import random
 from typing import Iterator, Tuple
-from typing import List
 
 import pytest
 
 from rich_img_widget.image import (diff_from_charflags, get_block_char,
                                    get_cell, get_color_avg, get_hi_flags,
-                                   get_split_flags, RasterCell)
+                                   get_split_flags, get_cell_from_pattern)
 
 
-def get_island_line() -> List[RasterCell]:
-    with open("./tests/result/island.txt") as file:
-        line = file.readline()
-    print(line)
+def int_from_charmap(charflags: int) -> Iterator[int]:
+    mask = 1 << 31
+    while mask:
+        if charflags & mask:
+            yield 1
+        else:
+            yield 0
+        mask >>= 1
 
-    pattern = re.compile(
-        r"\[48;2;(?P<fr_r>\d+);(?P<fr_g>\d+);(?P<fr_b>\d+)m\x1b\[38;2;(?P<bg_r>\d+);"
-        r"(?P<bg_g>\d+);(?P<bg_b>\d+)m(?P<chars>[ \W].?)\x1b"
+
+def black_triangle() -> Tuple[Tuple[int, int, int], ...]:
+    return tuple(
+        (0, 0, 0) if flag == 1 else (255, 255, 255)
+        for flag in int_from_charmap(0x000137f0)
     )
-
-    raster_list = []
-    matches = pattern.findall(line)
-    for match in matches:
-        for char in match[6]:
-            fr_r, fr_g, fr_b, bg_r, bg_g, bg_b = match[:-1]
-            raster_list.append(RasterCell(
-                fg_color=(fr_r, fr_g, fr_b),
-                bg_color=(bg_r, bg_g, bg_b),
-                char=char
-            ))
-    return raster_list
 
 
 def test_avg():
@@ -46,6 +38,17 @@ def test_avg():
     assert get_color_avg(cells) == expected
 
 
+def test_get_cell_from_pattern():
+    pattern = 0x000137f0
+    charcode = 0x25e2
+    pixels = black_triangle()
+    cell = get_cell_from_pattern(pixels, codepoint=charcode, pattern=pattern)
+
+    assert cell.fg_color == (0, 0, 0)
+    assert cell.bg_color == (255, 255, 255)
+    assert cell.char == '◢'
+
+
 class TestHiLoMap:
 
     def test_sanity(self):
@@ -59,7 +62,7 @@ class TestHiLoMap:
         assert get_split_flags(test_pixels) == expected_flag
 
 
-@ pytest.mark.parametrize("high_flags, charflags, expected_diff", [
+@pytest.mark.parametrize("high_flags, charflags, expected_diff", [
     (0b00110100001001101001100100010110, 0b10010100001001101011100000010110, 4),
     (0b11011111110000011011101001001100, 0b11001111110100010011101000000101, 6),
     (0b10100011001001011111110110100110, 0b10100011001001011111110110100111, 1),
@@ -91,25 +94,8 @@ class TestGetCell:
     black = (0, 0, 0)
     white = (255, 255, 255)
 
-    @ classmethod
-    def black_triangle(cls) -> Tuple[Tuple[int, int, int], ...]:
-        return tuple(
-            cls.black if flag == 1 else cls.white
-            for flag in TestGetCell.int_from_charmap(0x000137f0)
-        )
-
-    @ classmethod
-    def int_from_charmap(cls, charflags: int) -> Iterator[int]:
-        mask = 1 << 31
-        while mask:
-            if charflags & mask:
-                yield 1
-            else:
-                yield 0
-            mask >>= 1
-
     def test_sanity(self):
-        pixels = self.black_triangle()
+        pixels = black_triangle()
         cell = get_cell(pixels)
         assert cell.fg_color == self.black
         assert cell.bg_color == self.white
