@@ -4,8 +4,8 @@ from typing import Iterator, Tuple
 import pytest
 
 from rich_img_widget.image import (diff_from_charflags, get_block_char,
-                                   get_cell, get_color_avg, get_hi_flags,
-                                   get_split_flags, get_cell_from_pattern)
+                                   get_cell, get_color_avg,
+                                   get_cell_from_pattern)
 
 
 def int_from_charmap(charflags: int) -> Iterator[int]:
@@ -47,19 +47,6 @@ def test_get_cell_from_pattern():
     assert cell.fg_color == (0, 0, 0)
     assert cell.bg_color == (255, 255, 255)
     assert cell.char == '◢'
-
-
-class TestHiLoMap:
-
-    def test_sanity(self):
-
-        test_pixels = [(255, 255, 255) if i % 4 == 0 else (0, 0, 0)
-                       for i in range(32)]
-
-        expected_flag = 0b10001000100010001000100010001000
-
-        assert get_hi_flags(test_pixels) == expected_flag
-        assert get_split_flags(test_pixels) == expected_flag
 
 
 @pytest.mark.parametrize("high_flags, charflags, expected_diff", [

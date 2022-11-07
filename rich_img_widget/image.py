@@ -31,31 +31,6 @@ def get_color_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int
     return (red_total // size, green_total // size, blue_total // size)
 
 
-def get_hi_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
-    """
-    Returns a tuple of booleans from a flattened pixel region which describes pixels
-    that higher than or equal to the average of that region.
-    """
-
-    def get_pixel_vec_square(pixel: Tuple[int, int, int]) -> int:
-        """
-        gets and sums the three components of pixel to get a scalar value
-        of the pixel's color "vector". It is purely for comparison purposes.
-        """
-        return sum((component**2 for component in pixel))
-
-    avg_vec_sqr = get_pixel_vec_square(get_color_avg(pixels))
-
-    hi_flags = 0
-
-    for pixel in pixels:
-        hi_flags <<= 1
-        if get_pixel_vec_square(pixel) >= avg_vec_sqr:
-            hi_flags |= 1
-
-    return hi_flags
-
-
 def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
 
     channels = tuple(zip(*pixels))
@@ -94,45 +69,39 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
     whether it is inverted or not
     """
 
-    min_diff = 0xffffffff  # initially set to max value
+    min_diff = 8
     inverted = False       # sensible default
 
-    code = 0x00a0  # space
-    flags = 0x00000000
+    code = 0x2584  # lower 1/2
+    flags = 0x0000ffff
 
     for char_flags, char_code in BLOCKCHARS.items():
         diff = diff_from_charflags(hi_flags, char_flags)
 
-        if diff == 0:  # checks for exact match
-
+        if diff < min_diff:
             code = char_code
-            flags = char_flags
-            break
-
-        elif diff == 32:  # checks for inverted match
-
-            flags, code, inverted = char_flags, char_code, True
-            break
-
-        elif diff <= min_diff:  # closest char
-
+            flags = flags
+            inverted = False
             min_diff = diff
-            code = char_code
-            flags = char_flags
 
-        elif (d := 32-diff) <= min_diff:  # closest inverse char
-            min_diff = d
+        if 32 - diff < min_diff:
             code = char_code
-            flags = char_flags
+            flags = flags
             inverted = True
+            min_diff = 32-diff
 
     return flags, code, inverted
 
 
-def get_direct_flags(pixels: Sequence[Pixel], color_counts: list[Tuple[Pixel, int]]) -> int:
+def get_direct_flags(
+        pixels: Sequence[Pixel],
+        color_counts: list[Tuple[Pixel, int]]
+) -> int:
+
     flags = 0
     denser_color = color_counts[0][0]
-    sparser_color = color_counts[1][0]
+    sparser_color = color_counts[1][0] if len(
+        color_counts) >= 2 else denser_color
     for pixel in pixels:
         flags <<= 1
         d1 = 0
@@ -176,24 +145,26 @@ def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
     most2sum = sum(count[1] for count in most_2_color_counts)
     if most2sum > len(pixels) / 2:
         flags = get_direct_flags(pixels, most_2_color_counts)
+        best_pattern, charcode, inverted = get_block_char(flags)
+        fg_color = most_2_color_counts[-1][0]
+        bg_color = most_2_color_counts[0][0] if len(
+            most_2_color_counts) >= 2 else fg_color
+        if inverted:
+            fg_color, bg_color = bg_color, fg_color
+
     else:
         flags = get_split_flags(pixels)
-
-    mask = 1 << 31
-    for pixel in pixels:
-        if hi_flags & mask:
-            hi_cells.append(pixel)
-        else:
-            lo_cells.append(pixel)
-
-        if char_flags & mask:
-            fg_cells.append(pixel)
-        else:
-            bg_cells.append(pixel)
-        mask >>= 1
-    fg_color = get_color_avg(fg_cells)
-    bg_color = get_color_avg(bg_cells)
-    # if invert:
-    #     fg_color, bg_color = bg_color, fg_color
+        best_pattern, charcode, inverted = get_block_char(flags)
+        mask = 1 << 31
+        fg_cells = []
+        bg_cells = []
+        for pixel in pixels:
+            if best_pattern & mask:
+                fg_cells.append(pixel)
+            else:
+                bg_cells.append(pixel)
+            mask >>= 1
+        fg_color = get_color_avg(fg_cells)
+        bg_color = get_color_avg(bg_cells)
 
     return RasterCell(fg_color, bg_color, chr(charcode))
