@@ -30,6 +30,18 @@ def get_color_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int
 
     return (red_total // size, green_total // size, blue_total // size)
 
+# TODO: get bitarray package
+
+
+def invert_bits(flag: int) -> int:
+    inverse = 0
+    for i in range(31):
+        inverse <<= 1
+        if flag & 1:
+            inverse |= 1
+        flag >>= 1
+    return inverse
+
 
 def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
 
@@ -77,6 +89,8 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
 
     for char_flags, char_code in BLOCKCHARS.items():
         diff = diff_from_charflags(hi_flags, char_flags)
+        inverse_diff = diff_from_charflags(hi_flags,
+                                           invert_bits(char_flags))
 
         if diff < min_diff:
             code = char_code
@@ -84,7 +98,7 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
             inverted = False
             min_diff = diff
 
-        if 32 - diff < min_diff:
+        if inverse_diff < min_diff:
             code = char_code
             flags = char_flags
             inverted = True

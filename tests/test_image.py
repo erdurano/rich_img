@@ -8,7 +8,7 @@ import pytest
 
 from rich_img_widget.image import (diff_from_charflags, get_block_char,
                                    get_cell, get_color_avg,
-                                   get_cell_from_pattern)
+                                   get_cell_from_pattern, invert_bits)
 
 
 Pixel = Tuple[int, int, int]
@@ -49,6 +49,15 @@ def island_firstline_pixels() -> Iterator[List[Pixel]]:
         pixels = [pix[(x, y)]
                   for x, y in itertools.product(range(x, x+4), range(y, y+8))]
         yield pixels
+
+
+@pytest.mark.parametrize("bits, expected", [
+    (0x88888888, 0x77777777),
+    (0xffffffff, 0),
+    (0, 0xffffffff)
+])
+def test_invert_bits(bits, expected):
+    assert invert_bits(bits) == expected
 
 
 def test_avg():
@@ -114,8 +123,9 @@ class TestGetCell:
         assert cell.bg_color == self.white
         assert cell.char == '◢'
 
-    def test_island_chars(self):
-        chars = "  ▄▄⎽⎽▂▂▅▁⎽⎽⎽⎺⎼⎼⎽⎽  ⎽⎽⎽⎽◥╹⎽◣⎺╻⎽⎻⎻─⎽⎽⎼⎼ ⎽▇⎽⎽⎺▇▅⎽⎽▃⎼▃▅▁⎼⎺⎼⎼⎼⎺◢⎽⎽▄⎽"\
-            "▅⎽◣▁⎺⎺▝─◣⎼⎽⎻⎽⎽⎽▝⎽▇▗⎽◥◣─▅⎺▅▅⎽⎻⎽▁⎼⎺⎽ ⎽⎽│▖⎺◤⎽⎼╹⎽⎽⎽⎼ ⎻⎽⎽⎺⎼⎺⎽⎽⎽⎺⎺⎽⎽"\
-            "▝⎻▁▄⎼⎽⎺▃◢⎽⎺⎼⎼⎼⎽⎻⎽⎽⎺⎼⎻⎽⎽⎽⎻⎽⎻▃⎺⎽⎽⎽⎽⎽⎽⎽▖▅⎽⎺▄▄⎺▇⎽⎽⎺⎽▄▄"
-        assert chars
+    @pytest.mark.parametrize("tiv_char, cell_range_pixels",
+                             zip(tiv_first_line(), island_firstline_pixels())
+                             )
+    def test_against_tiv(self, tiv_char: str, cell_range_pixels: List[Pixel]):
+
+        assert tiv_char == get_cell(cell_range_pixels).char
