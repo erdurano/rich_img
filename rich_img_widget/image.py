@@ -80,13 +80,13 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
 
         if diff < min_diff:
             code = char_code
-            flags = flags
+            flags = char_flags
             inverted = False
             min_diff = diff
 
         if 32 - diff < min_diff:
             code = char_code
-            flags = flags
+            flags = char_flags
             inverted = True
             min_diff = 32-diff
 

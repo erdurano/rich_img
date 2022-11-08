@@ -1,11 +1,19 @@
 from random import random
-from typing import Iterator, Tuple
+from typing import Iterator, Tuple, Mapping, List
+from PIL import Image
+
+import itertools
 
 import pytest
 
 from rich_img_widget.image import (diff_from_charflags, get_block_char,
                                    get_cell, get_color_avg,
                                    get_cell_from_pattern)
+
+
+Pixel = Tuple[int, int, int]
+Coordinate = Tuple[int, int]
+PixelAccessor = Mapping[Coordinate, Pixel]
 
 
 def int_from_charmap(charflags: int) -> Iterator[int]:
@@ -23,6 +31,24 @@ def black_triangle() -> Tuple[Tuple[int, int, int], ...]:
         (0, 0, 0) if flag == 1 else (255, 255, 255)
         for flag in int_from_charmap(0x000137f0)
     )
+
+
+def tiv_first_line() -> Iterator[str]:
+    yield from ("  ▌▌▅▅▊▊▄▃▄▄▄▃▃▃▄▄  ▄▄▅▅▄▌▁▃▂▌▝▄▘▄▄▄▃▃▇▆▆▆▅▖▅▄▅▅▃▂▗▄ ▃▂▗▁▂▂▊▅▁▄"
+                "▝▄▝▝▗▃▂▘▂▝▃▄▄▄▅▆▖▅▘▄▅━▃▄▄▃▘▘▄▂▆▂▃▃▅▄▂┗▆▆▃▖▅▄▃ ▆▝▃ ▅▅▄▃▄▂▄▅▅▂▃▅▅"
+                "▖▅▂▌▃▅▂▗▄▄▁▂▂▂▅▅▅▄▃▂▘▝▄▅▅▆▅┛▂▅▅▅▄▄▅▅▝▌▆▃▌▌▖▅▄▄▂▄▌▌")
+
+
+def island_firstline_pixels() -> Iterator[List[Pixel]]:
+    with Image.open("./tests/img/island.jpg") as file:
+        img_size = file.size
+        pix: PixelAccessor = file.load()  # type: ignore
+
+    y = 0
+    for x in range(0, img_size[0]-4, 4):
+        pixels = [pix[(x, y)]
+                  for x, y in itertools.product(range(x, x+4), range(y, y+8))]
+        yield pixels
 
 
 def test_avg():
