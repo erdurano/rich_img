@@ -23,7 +23,7 @@ for y in range(0, img_size[1]-8, 8):
     li = []
     for x in range(0, img_size[0]-4, 4):
         pixels = [pix[(x, y)]
-                  for x, y in itertools.product(range(x, x+4), range(y, y+8))]
+                  for y, x in itertools.product(range(y, y+8), range(x, x+4))]
         cell = get_cell(pixels)
 
         seg = Segment(

@@ -2,7 +2,7 @@ from typing import Sequence, Tuple
 from typing import NamedTuple
 from .block_chars import BLOCKCHARS
 from collections import Counter
-
+from bitarray.util import int2ba, ba2int
 
 Pixel = Tuple[int, int, int]
 
@@ -34,13 +34,9 @@ def get_color_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int
 
 
 def invert_bits(flag: int) -> int:
-    inverse = 0
-    for i in range(31):
-        inverse <<= 1
-        if flag & 1:
-            inverse |= 1
-        flag >>= 1
-    return inverse
+    arr = int2ba(flag, length=32)
+    arr = ~arr
+    return ba2int(arr)
 
 
 def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
