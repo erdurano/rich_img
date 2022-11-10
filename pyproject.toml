@@ -10,7 +10,6 @@ packages = [{include = "rich_img_widget"}]
 python = ">=3.7.0, <4.0"
 rich = "^12.6.0"
 pillow = "^9.3.0"
-bitarray = "^2.6.0"
 
 
 [tool.poetry.group.dev.dependencies]
