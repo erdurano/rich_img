@@ -13,6 +13,6 @@ After installing the Poetry project, outpot screenshot taken in Windows Terminal
 ```bash
 poetry run python mess.py
 ```
-![Island Output](.\img\island_output.png)
+![Island Output](https://github.com/erdurano/rich_img/blob/main/img/island_output.png?raw=true)
 
 
