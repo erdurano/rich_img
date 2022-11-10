@@ -30,8 +30,6 @@ def get_color_avg(pixels: Sequence[Tuple[int, int, int]]) -> Tuple[int, int, int
 
     return (red_total // size, green_total // size, blue_total // size)
 
-# TODO: get bitarray package
-
 
 def invert_bits(flag: int) -> int:
 
