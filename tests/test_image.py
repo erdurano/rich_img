@@ -6,9 +6,9 @@ import itertools
 
 import pytest
 
-from rich_img_widget.image import (diff_from_charflags, get_block_char,
-                                   get_cell, get_color_avg,
-                                   get_cell_from_pattern, invert_bits)
+from rich_img.image import (diff_from_charflags, get_block_char,
+                            get_cell, get_color_avg,
+                            get_cell_from_pattern, invert_bits)
 
 
 Pixel = Tuple[int, int, int]

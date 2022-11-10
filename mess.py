@@ -1,6 +1,6 @@
 import itertools
 from PIL import Image
-from rich_img_widget.image import get_cell
+from rich_img.image import get_cell
 from rich.segment import Segment, SegmentLines
 from rich.style import Style
 from rich.color import Color, ColorType
