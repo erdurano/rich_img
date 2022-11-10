@@ -7,7 +7,7 @@ Currently all tests except written against reference implementation passes.
 
 ## Example I/O
 ### Input
-![Island Picture](.\tests\img\island.jpg)
+![Island Picture](https://github.com/erdurano/rich_img/blob/main/tests/img/island.jpg?raw=true)
 ### Output
 After installing the Poetry project, outpot screenshot taken in Windows Terminal by running
 ```bash
