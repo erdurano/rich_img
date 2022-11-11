@@ -1,15 +1,12 @@
-from random import random
-from typing import Iterator, Tuple, Mapping, List
-from PIL import Image
-
 import itertools
+from random import random
+from typing import Iterator, List, Mapping, Tuple
 
 import pytest
+from PIL import Image
 
-from rich_img.image import (diff_from_charflags, get_block_char,
-                            get_cell, get_color_avg,
-                            get_cell_from_pattern, invert_bits)
-
+from rich_img.image import (diff_from_charflags, get_block_char, get_cell,
+                            get_cell_from_pattern, get_color_avg, invert_bits)
 
 Pixel = Tuple[int, int, int]
 Coordinate = Tuple[int, int]
@@ -36,7 +33,7 @@ def black_triangle() -> Tuple[Tuple[int, int, int], ...]:
 def tiv_first_line() -> Iterator[str]:
     yield from ("  ▌▌▅▅▊▊▄▃▄▄▄▃▃▃▄▄  ▄▄▅▅▄▌▁▃▂▌▝▄▘▄▄▄▃▃▇▆▆▆▅▖▅▄▅▅▃▂▗▄ ▃▂▗▁▂▂▊▅▁▄"
                 "▝▄▝▝▗▃▂▘▂▝▃▄▄▄▅▆▖▅▘▄▅━▃▄▄▃▘▘▄▂▆▂▃▃▅▄▂┗▆▆▃▖▅▄▃ ▆▝▃ ▅▅▄▃▄▂▄▅▅▂▃▅▅"
-                "▖▅▂▌▃▅▂▗▄▄▁▂▂▂▅▅▅▄▃▂▘▝▄▅▅▆▅┛▂▅▅▅▄▄▅▅▝▌▆▃▌▌▖▅▄▄▂▄▌▌")
+                "▖▅▂▌▃▅▂▗▄▄▁▂▂▂▅▅▅▄▃▂▘▝▄▅▅▆▅┛▂▅▅▅▄▄▅▅▝▌▆▃▌▌▖▅▄▄▂▄▌▌▌")
 
 
 def island_firstline_pixels() -> Iterator[List[Pixel]]:
