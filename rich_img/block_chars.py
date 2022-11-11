@@ -4,7 +4,7 @@ that bitmap structure. Initially directly taken from
 github.com/stefanhaustein/TerminalImageViewer.
 Key of the dictionary signifies the bitmap of an 4 by 8 cell area
 each hex digit (hexit?) signifies a row such that if hex digit is converted to a binary,
-each bit represent high state on the hi_lo_bitmap.
+each bit represent high state on the fore and background colors.
 """
 
 

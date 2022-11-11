@@ -1,12 +1,14 @@
 import itertools
+from typing import Mapping, Tuple
+
 from PIL import Image
-from rich_img.image import get_cell
-from rich.segment import Segment, SegmentLines
-from rich.style import Style
 from rich.color import Color, ColorType
 from rich.color_triplet import ColorTriplet
 from rich.console import Console
-from typing import Tuple, Mapping
+from rich.segment import Segment, SegmentLines
+from rich.style import Style
+
+from rich_img.image import get_cell
 
 Pixel = Tuple[int, int, int]
 Coordinate = Tuple[int, int]

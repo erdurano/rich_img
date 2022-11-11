@@ -1,8 +1,7 @@
-from typing import Sequence, Tuple
-from typing import NamedTuple
-from .block_chars import BLOCKCHARS
 from collections import Counter
-# from bitarray.util import int2ba, ba2int
+from typing import NamedTuple, Sequence, Tuple
+
+from .block_chars import BLOCKCHARS
 
 Pixel = Tuple[int, int, int]
 
@@ -47,7 +46,7 @@ def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
     split_channels = (split_r, split_b, split_g)
     max_split = max(split_channels)
     split_index = split_channels.index(max_split)
-    split_value = min(channels[split_index]) + max_split/2
+    split_value = min(channels[split_index]) + max_split//2
 
     split_flags = 0
     for pix in pixels:
@@ -93,7 +92,7 @@ def get_block_char(hi_flags: int) -> Tuple[int, int, bool]:
             inverted = False
             min_diff = diff
 
-        if inverse_diff < min_diff:
+        elif inverse_diff < min_diff:
             code = char_code
             flags = char_flags
             inverted = True
