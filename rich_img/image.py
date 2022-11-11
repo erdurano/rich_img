@@ -43,7 +43,7 @@ def get_split_flags(pixels: Sequence[Tuple[int, int, int]]) -> int:
     split_r = max(channels[0]) - min(channels[0])
     split_g = max(channels[1]) - min(channels[1])
     split_b = max(channels[2]) - min(channels[2])
-    split_channels = (split_r, split_b, split_g)
+    split_channels = (split_r, split_g, split_b)
     max_split = max(split_channels)
     split_index = split_channels.index(max_split)
     split_value = min(channels[split_index]) + max_split//2
