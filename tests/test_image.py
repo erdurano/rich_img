@@ -33,7 +33,7 @@ def black_triangle() -> Tuple[Tuple[int, int, int], ...]:
 def tiv_first_line() -> Iterator[str]:
     yield from ("  ▌▌▅▅▊▊▄▃▄▄▄▃▃▃▄▄  ▄▄▅▅▄▌▁▃▂▌▝▄▘▄▄▄▃▃▇▆▆▆▅▖▅▄▅▅▃▂▗▄ ▃▂▗▁▂▂▊▅▁▄"
                 "▝▄▝▝▗▃▂▘▂▝▃▄▄▄▅▆▖▅▘▄▅━▃▄▄▃▘▘▄▂▆▂▃▃▅▄▂┗▆▆▃▖▅▄▃ ▆▝▃ ▅▅▄▃▄▂▄▅▅▂▃▅▅"
-                "▖▅▂▌▃▅▂▗▄▄▁▂▂▂▅▅▅▄▃▂▘▝▄▅▅▆▅┛▂▅▅▅▄▄▅▅▝▌▆▃▌▌▖▅▄▄▂▄▌▌▌")
+                "▖▅▂▌▃▅▂▗▄▄▁▂▂▂▅▅▅▄▃▂▘▝▄▅▅▆▅┛▂▅▅▅▄▄▅▅▝▌▆▃▌▌▖▅▄▄▂▄▌▌")
 
 
 def island_firstline_pixels() -> Iterator[List[Pixel]]:
@@ -121,7 +121,8 @@ class TestGetCell:
         assert cell.char == '◢'
 
     @pytest.mark.parametrize("tiv_char, cell_range_pixels",
-                             zip(tiv_first_line(), island_firstline_pixels())
+                             zip(tiv_first_line(),
+                                 island_firstline_pixels(), strict=True)
                              )
     def test_against_tiv(self, tiv_char: str, cell_range_pixels: List[Pixel]):
 

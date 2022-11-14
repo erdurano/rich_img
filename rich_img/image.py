@@ -149,10 +149,11 @@ def get_cell_from_pattern(pixels: Sequence[Pixel],
 
 def get_cell(pixels: Sequence[Tuple[int, int, int]]) -> RasterCell:
 
-    most_2_color_counts = Counter(pixels).most_common(2)
+    color_counts = Counter(pixels).most_common()
+    most_2_color_counts = color_counts[:2]
     most2sum = sum(count[1] for count in most_2_color_counts)
-    if most2sum > len(pixels) / 2:
-        flags = get_direct_flags(pixels, most_2_color_counts)
+    if most2sum > (len(pixels) / 2):
+        flags = get_direct_flags(pixels, color_counts)
         best_pattern, charcode, inverted = get_block_char(flags)
         fg_color = most_2_color_counts[-1][0]
         bg_color = most_2_color_counts[0][0] if len(
